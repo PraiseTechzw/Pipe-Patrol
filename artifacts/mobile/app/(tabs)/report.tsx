@@ -21,6 +21,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { MapPreviewCard } from "@/components/MapPreviewCard";
 import { PrimaryButton } from "@/components/PrimaryButton";
+import { useAuth } from "@/context/AuthContext";
 import { useReports } from "@/context/ReportsContext";
 import { useColors } from "@/hooks/useColors";
 import { SEVERITY_LABEL, formatCoords, formatRelative } from "@/lib/format";
@@ -45,9 +46,8 @@ export default function ReportScreen() {
     submitReport,
     saveDraft,
     deleteDraft,
-    reporterName,
-    setReporterName,
   } = useReports();
+  const { user } = useAuth();
 
   const [mode, setMode] = useState<Mode>("form");
 
@@ -56,7 +56,10 @@ export default function ReportScreen() {
   const [severity, setSeverity] = useState<Severity>("medium");
   const [location, setLocation] = useState<LocationInfo>(EMPTY_LOCATION);
   const [imageUri, setImageUri] = useState<string | null>(null);
-  const [name, setName] = useState(reporterName);
+  const [reportAnonymously, setReportAnonymously] = useState(false);
+  const reporterDisplay = reportAnonymously
+    ? "Anonymous"
+    : (user?.name ?? "Anonymous");
 
   const [gpsLoading, setGpsLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -168,15 +171,12 @@ export default function ReportScreen() {
     if (!isValid || submitting) return;
     setSubmitting(true);
     try {
-      if (name.trim() && name.trim() !== reporterName) {
-        await setReporterName(name.trim());
-      }
       const report = await submitReport({
         description,
         severity,
         location,
         imageUri,
-        reporterName: name,
+        reporterName: reporterDisplay,
         fromDraftId: editingDraftId ?? undefined,
       });
       if (Platform.OS !== "web") {
@@ -194,13 +194,11 @@ export default function ReportScreen() {
     severity,
     location,
     imageUri,
-    name,
-    reporterName,
+    reporterDisplay,
     editingDraftId,
     isValid,
     submitting,
     submitReport,
-    setReporterName,
     resetForm,
   ]);
 
@@ -223,7 +221,7 @@ export default function ReportScreen() {
         severity,
         location,
         imageUri,
-        reporterName: name,
+        reporterName: reporterDisplay,
       });
       setEditingDraftId(draft.id);
       if (Platform.OS !== "web") {
@@ -238,7 +236,7 @@ export default function ReportScreen() {
     severity,
     location,
     imageUri,
-    name,
+    reporterDisplay,
     editingDraftId,
     savingDraft,
     saveDraft,
@@ -250,7 +248,7 @@ export default function ReportScreen() {
     setSeverity(draft.severity);
     setLocation(draft.location);
     setImageUri(draft.imageUri);
-    setName(draft.reporterName);
+    setReportAnonymously(draft.reporterName === "Anonymous");
     setSubmittedTicket(null);
     setMode("form");
   }, []);
@@ -664,24 +662,81 @@ export default function ReportScreen() {
             </FieldGroup>
 
             <FieldGroup
-              label="Your name (optional)"
-              hint="Leave blank to report anonymously."
+              label="Reporting as"
+              hint="Toggle anonymous if you'd rather not be named on the ticket."
             >
-              <TextInput
-                value={name}
-                onChangeText={setName}
-                placeholder="Anonymous"
-                placeholderTextColor={colors.mutedForeground}
-                style={[
-                  styles.input,
+              <Pressable
+                onPress={() => setReportAnonymously((v) => !v)}
+                style={({ pressed }) => [
+                  styles.reporterChip,
                   {
-                    color: colors.foreground,
                     backgroundColor: colors.card,
-                    borderColor: colors.border,
+                    borderColor: reportAnonymously
+                      ? colors.border
+                      : colors.primary,
                     borderRadius: colors.radius,
+                    opacity: pressed ? 0.9 : 1,
                   },
                 ]}
-              />
+              >
+                <View
+                  style={[
+                    styles.reporterAvatar,
+                    {
+                      backgroundColor: reportAnonymously
+                        ? colors.muted
+                        : colors.infoSoft,
+                    },
+                  ]}
+                >
+                  <Feather
+                    name={reportAnonymously ? "eye-off" : "user"}
+                    size={16}
+                    color={
+                      reportAnonymously ? colors.mutedForeground : colors.primary
+                    }
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={[
+                      styles.reporterName,
+                      { color: colors.foreground },
+                    ]}
+                  >
+                    {reporterDisplay}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.reporterHint,
+                      { color: colors.mutedForeground },
+                    ]}
+                  >
+                    {reportAnonymously
+                      ? "Your name is hidden from this report"
+                      : "Tap to report anonymously"}
+                  </Text>
+                </View>
+                <View
+                  style={[
+                    styles.toggleTrack,
+                    {
+                      backgroundColor: reportAnonymously
+                        ? colors.muted
+                        : colors.primary,
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.toggleThumb,
+                      {
+                        alignSelf: reportAnonymously ? "flex-start" : "flex-end",
+                      },
+                    ]}
+                  />
+                </View>
+              </Pressable>
             </FieldGroup>
 
             <View style={styles.submitRow}>
@@ -874,6 +929,42 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     fontFamily: "Inter_400Regular",
     fontSize: 15,
+  },
+  reporterChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    padding: 12,
+    borderWidth: 1,
+  },
+  reporterAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  reporterName: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  reporterHint: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+  },
+  toggleTrack: {
+    width: 38,
+    height: 22,
+    borderRadius: 999,
+    padding: 2,
+    justifyContent: "center",
+  },
+  toggleThumb: {
+    width: 18,
+    height: 18,
+    borderRadius: 999,
+    backgroundColor: "#fff",
   },
   severityRow: {
     flexDirection: "row",

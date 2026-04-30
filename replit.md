@@ -22,28 +22,46 @@ backend is required.
 ## Mobile app structure (`artifacts/mobile`)
 
 - `app/_layout.tsx` — providers (SafeArea, ErrorBoundary, QueryClient,
-  ReportsProvider, GestureHandler, Keyboard) and root Stack with the
-  `report/[id]` modal screen.
-- `app/(tabs)/_layout.tsx` — 4-tab native/classic layout
-  (Home · Report · Notices · Admin).
-- `app/(tabs)/index.tsx` — Home: greeting, hero CTA, stats, nearby active
-  incidents (haversine distance from current location), and the user's
-  submitted tickets.
-- `app/(tabs)/report.tsx` — New report form with GPS capture, manual
-  address entry, photo attachment, severity selection, draft save/load,
-  and a success state with the generated ticket id.
-- `app/(tabs)/notices.tsx` — Filterable list of municipal notices
-  (disruption / maintenance / restoration).
-- `app/(tabs)/admin.tsx` — Municipal dashboard: KPI tiles, status filter,
-  triaged ticket queue, sample-data reset.
+  AuthProvider, ReportsProvider, GestureHandler, Keyboard) and root
+  Stack with the `(auth)` group, `(tabs)` group, and `report/[id]`
+  modal screen. `<AuthGate>` redirects unauthenticated users to
+  `/(auth)/welcome` and authenticated users out of the auth group.
+- `app/(auth)/_layout.tsx` — auth Stack (no header).
+- `app/(auth)/welcome.tsx` — role picker (Resident vs Municipality)
+  with gradient hero and demo-account hint card.
+- `app/(auth)/sign-in.tsx` / `sign-up.tsx` — resident auth (email,
+  password, optional phone + suburb).
+- `app/(auth)/staff-sign-in.tsx` / `staff-sign-up.tsx` — municipality
+  staff auth, sign-up gated by access code `HARARE-WATER-2026`.
+- `app/(tabs)/_layout.tsx` — role-gated tabs. Residents see
+  Home · Report · Notices · Account. Staff see Queue · Notices · Account.
+  Hidden tabs use `href: null` (classic) and `hidden: true` (native).
+- `app/(tabs)/index.tsx` — Home: greeting, hero CTA, stats, nearby
+  active incidents (haversine), and the signed-in resident's tickets
+  (matched on `user.name`). Includes anonymous-submission toggle.
+- `app/(tabs)/report.tsx` — New report form. Uses the signed-in
+  resident's name as reporter (or "Anonymous" via toggle). GPS
+  capture, manual address, photo, severity, draft save/load.
+- `app/(tabs)/notices.tsx` — Filterable list of municipal notices.
+- `app/(tabs)/admin.tsx` — Municipal dashboard: greets staff by first
+  name, KPI tiles, status filter, triaged ticket queue, sample-data
+  reset.
+- `app/(tabs)/account.tsx` — Profile hero (gradient + initials avatar
+  + role pill), personal stats, editable profile (name, phone, suburb
+  for residents; department for staff), reset sample data, sign-out.
 - `app/report/[id].tsx` — Ticket detail with status timeline and
   controls for advancing repair status.
+- `context/AuthContext.tsx` — AsyncStorage-backed user store with
+  Resident + Staff roles, sign-in / sign-up / sign-out / updateProfile.
+  Seeds two demo accounts: `tendai@example.com` (resident) and
+  `chipo@harare.gov.zw` (staff). Password for both: `password`.
 - `context/ReportsContext.tsx` — AsyncStorage-backed store for reports,
-  drafts, notices, and reporter profile. Seeds sample incidents and
-  notices on first launch.
+  drafts, notices. Seeds sample incidents and notices on first launch.
 - `components/` — `ReportCard`, `NoticeCard`, `StatusBadge`,
   `SeverityBadge`, `StatusTimeline`, `MapPreviewCard`, `EmptyState`,
-  `PrimaryButton`, `SectionHeader`.
+  `PrimaryButton`, `SectionHeader`, `AuthScaffold` (gradient hero +
+  back button for auth screens), `AuthField` (focusable bordered
+  input with optional eye toggle).
 - `lib/format.ts` — id/ticket generation, relative time, haversine
   distance, status/severity labels.
 - `constants/colors.ts` — water-inspired civic palette

@@ -6,7 +6,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
@@ -15,15 +15,35 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { ReportsProvider } from "@/context/ReportsContext";
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loading) return;
+    const inAuthGroup = segments[0] === "(auth)";
+    if (!user && !inAuthGroup) {
+      router.replace("/(auth)/welcome");
+    } else if (user && inAuthGroup) {
+      router.replace("/(tabs)");
+    }
+  }, [user, loading, segments, router]);
+
+  return <>{children}</>;
+}
+
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
         name="report/[id]"
@@ -53,14 +73,18 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
-          <ReportsProvider>
-            <GestureHandlerRootView>
-              <KeyboardProvider>
-                <StatusBar style="dark" />
-                <RootLayoutNav />
-              </KeyboardProvider>
-            </GestureHandlerRootView>
-          </ReportsProvider>
+          <AuthProvider>
+            <ReportsProvider>
+              <GestureHandlerRootView>
+                <KeyboardProvider>
+                  <StatusBar style="dark" />
+                  <AuthGate>
+                    <RootLayoutNav />
+                  </AuthGate>
+                </KeyboardProvider>
+              </GestureHandlerRootView>
+            </ReportsProvider>
+          </AuthProvider>
         </QueryClientProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
