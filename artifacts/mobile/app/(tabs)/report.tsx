@@ -19,8 +19,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/EmptyState";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
+import { MapPreviewCard } from "@/components/MapPreviewCard";
 import { PrimaryButton } from "@/components/PrimaryButton";
-import { SectionHeader } from "@/components/SectionHeader";
 import { useReports } from "@/context/ReportsContext";
 import { useColors } from "@/hooks/useColors";
 import { SEVERITY_LABEL, formatCoords, formatRelative } from "@/lib/format";
@@ -618,6 +618,17 @@ export default function ReportScreen() {
                   },
                 ]}
               />
+              {(location.latitude !== null || location.address.trim().length > 0) ? (
+                <View style={{ marginTop: 12 }}>
+                  <MapPreviewCard
+                    latitude={location.latitude}
+                    longitude={location.longitude}
+                    address={location.address}
+                    label="Preview"
+                    height={110}
+                  />
+                </View>
+              ) : null}
             </FieldGroup>
 
             <FieldGroup

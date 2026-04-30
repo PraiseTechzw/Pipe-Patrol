@@ -1,45 +1,63 @@
 const colors = {
   light: {
-    text: "#0b1220",
-    tint: "#0e7490",
+    text: "#0a1f33",
+    tint: "#0369a1",
 
-    background: "#f6f8fa",
-    foreground: "#0b1220",
+    background: "#f3f8fc",
+    backgroundAlt: "#eaf3fa",
+    foreground: "#0a1f33",
 
     card: "#ffffff",
-    cardForeground: "#0b1220",
+    cardForeground: "#0a1f33",
 
-    primary: "#0e7490",
+    primary: "#0369a1",
+    primaryDeep: "#075985",
     primaryForeground: "#ffffff",
 
-    secondary: "#e6eef2",
-    secondaryForeground: "#0b1220",
+    accent: "#06b6d4",
+    accentSoft: "#cffafe",
+    accentForeground: "#0a4655",
 
-    muted: "#eef2f5",
-    mutedForeground: "#5b6b7a",
+    secondary: "#e6f2fa",
+    secondaryForeground: "#0a1f33",
 
-    accent: "#f1f5f9",
-    accentForeground: "#0b1220",
+    muted: "#eef5fa",
+    mutedForeground: "#566b7e",
+
+    surfaceTint: "#f0f9ff",
 
     destructive: "#dc2626",
+    destructiveSoft: "#fee2e2",
     destructiveForeground: "#ffffff",
 
     warning: "#d97706",
+    warningSoft: "#fef3c7",
     warningForeground: "#ffffff",
 
-    success: "#15803d",
+    success: "#0f9d58",
+    successSoft: "#dcfce7",
     successForeground: "#ffffff",
 
-    info: "#1d4ed8",
+    info: "#0284c7",
+    infoSoft: "#dbeafe",
     infoForeground: "#ffffff",
 
-    border: "#dde5ec",
-    input: "#dde5ec",
+    border: "#d6e4ee",
+    borderStrong: "#b9cfe0",
+    input: "#d6e4ee",
 
-    overlay: "rgba(11,18,32,0.5)",
+    overlay: "rgba(10,31,51,0.55)",
+
+    heroGradient: ["#0ea5b7", "#0369a1", "#075985"] as [
+      string,
+      string,
+      string,
+    ],
+    heroGradientStart: { x: 0, y: 0 } as const,
+    heroGradientEnd: { x: 1, y: 1 } as const,
   },
 
-  radius: 14,
+  radius: 16,
 };
 
 export default colors;

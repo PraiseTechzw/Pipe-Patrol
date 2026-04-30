@@ -1,3 +1,4 @@
+import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -9,10 +10,13 @@ type Props = {
   size?: "sm" | "md";
 };
 
-const palette: Record<Severity, { bg: string; fg: string }> = {
-  low: { bg: "#e0f2fe", fg: "#0c4a6e" },
-  medium: { bg: "#fef3c7", fg: "#78350f" },
-  high: { bg: "#fee2e2", fg: "#7f1d1d" },
+const palette: Record<
+  Severity,
+  { bg: string; fg: string; icon: keyof typeof Feather.glyphMap }
+> = {
+  low: { bg: "#e0f7fa", fg: "#0e6d7c", icon: "droplet" },
+  medium: { bg: "#fef3c7", fg: "#78350f", icon: "alert-circle" },
+  high: { bg: "#fee2e2", fg: "#7f1d1d", icon: "alert-triangle" },
 };
 
 export function SeverityBadge({ severity, size = "md" }: Props) {
@@ -24,17 +28,19 @@ export function SeverityBadge({ severity, size = "md" }: Props) {
         styles.badge,
         {
           backgroundColor: c.bg,
-          paddingVertical: isSm ? 3 : 5,
+          paddingVertical: isSm ? 4 : 5,
           paddingHorizontal: isSm ? 8 : 10,
+          gap: isSm ? 4 : 5,
         },
       ]}
     >
+      <Feather name={c.icon} size={isSm ? 10 : 12} color={c.fg} />
       <Text
         style={{
           color: c.fg,
-          fontSize: isSm ? 11 : 12,
-          fontFamily: "Inter_600SemiBold",
-          letterSpacing: 0.4,
+          fontSize: isSm ? 10.5 : 11.5,
+          fontFamily: "Inter_700Bold",
+          letterSpacing: 0.6,
           textTransform: "uppercase",
         }}
       >
@@ -47,6 +53,8 @@ export function SeverityBadge({ severity, size = "md" }: Props) {
 const styles = StyleSheet.create({
   badge: {
     alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
     borderRadius: 999,
   },
 });
