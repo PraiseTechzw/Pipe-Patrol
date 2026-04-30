@@ -1,3 +1,4 @@
+import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -10,32 +11,36 @@ type Props = {
   size?: "sm" | "md";
 };
 
+const ICON_BY_STATUS: Record<ReportStatus, keyof typeof Feather.glyphMap> = {
+  submitted: "send",
+  acknowledged: "eye",
+  in_progress: "tool",
+  resolved: "check",
+};
+
 export function StatusBadge({ status, size = "md" }: Props) {
   const colors = useColors();
 
-  const palette: Record<
-    ReportStatus,
-    { bg: string; fg: string; dot: string }
-  > = {
+  const palette: Record<ReportStatus, { bg: string; fg: string; ring: string }> = {
     submitted: {
-      bg: "#e6eef2",
-      fg: "#0b3a4a",
-      dot: colors.info,
+      bg: colors.infoSoft,
+      fg: "#0c3a6e",
+      ring: colors.info,
     },
     acknowledged: {
-      bg: "#fef3c7",
+      bg: colors.warningSoft,
       fg: "#7c4a03",
-      dot: colors.warning,
+      ring: colors.warning,
     },
     in_progress: {
-      bg: "#dbeafe",
-      fg: "#0c2f6b",
-      dot: colors.info,
+      bg: colors.accentSoft,
+      fg: colors.accentForeground,
+      ring: colors.accent,
     },
     resolved: {
-      bg: "#dcfce7",
+      bg: colors.successSoft,
       fg: "#0f4322",
-      dot: colors.success,
+      ring: colors.success,
     },
   };
 
@@ -48,19 +53,36 @@ export function StatusBadge({ status, size = "md" }: Props) {
         styles.badge,
         {
           backgroundColor: c.bg,
-          paddingVertical: isSm ? 3 : 5,
-          paddingHorizontal: isSm ? 8 : 10,
+          paddingVertical: isSm ? 4 : 6,
+          paddingHorizontal: isSm ? 9 : 11,
           borderRadius: 999,
+          gap: isSm ? 5 : 6,
         },
       ]}
     >
-      <View style={[styles.dot, { backgroundColor: c.dot }]} />
+      <View
+        style={[
+          styles.iconDot,
+          {
+            backgroundColor: c.ring,
+            width: isSm ? 14 : 16,
+            height: isSm ? 14 : 16,
+            borderRadius: isSm ? 7 : 8,
+          },
+        ]}
+      >
+        <Feather
+          name={ICON_BY_STATUS[status]}
+          size={isSm ? 8 : 9}
+          color="#ffffff"
+        />
+      </View>
       <Text
         style={[
           styles.label,
           {
             color: c.fg,
-            fontSize: isSm ? 11 : 12,
+            fontSize: isSm ? 11 : 12.5,
             fontFamily: "Inter_600SemiBold",
           },
         ]}
@@ -76,12 +98,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "flex-start",
-    gap: 6,
   },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+  iconDot: {
+    alignItems: "center",
+    justifyContent: "center",
   },
   label: {
     letterSpacing: 0.1,

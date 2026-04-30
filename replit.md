@@ -42,12 +42,27 @@ backend is required.
   drafts, notices, and reporter profile. Seeds sample incidents and
   notices on first launch.
 - `components/` — `ReportCard`, `NoticeCard`, `StatusBadge`,
-  `SeverityBadge`, `StatusTimeline`, `EmptyState`, `PrimaryButton`,
-  `SectionHeader`.
+  `SeverityBadge`, `StatusTimeline`, `MapPreviewCard`, `EmptyState`,
+  `PrimaryButton`, `SectionHeader`.
 - `lib/format.ts` — id/ticket generation, relative time, haversine
   distance, status/severity labels.
-- `constants/colors.ts` — deep teal-blue municipal palette consumed via
-  the `useColors()` hook.
+- `constants/colors.ts` — water-inspired civic palette
+  (primary `#0369a1`, deep `#075985`, accent aqua `#06b6d4`) plus
+  `heroGradient` (typed as a 3-tuple for `expo-linear-gradient`),
+  `softShadow()` helper for cross-platform soft shadows, and the
+  `useColors()` hook consumes it.
+
+## UI design notes
+
+- Home, Admin, and Notices screens use `expo-linear-gradient` headers
+  built from `colors.heroGradient` / `[primaryDeep, primary, accent]`.
+  When inlining the array, cast it `as const` so TS picks the tuple
+  overload required by `LinearGradient.colors`.
+- Report detail and the new-report form embed the `MapPreviewCard`
+  (gradient grid + pulsing center pin) for a map-style location preview
+  without pulling in a real map SDK.
+- Web top inset uses `Math.max(insets.top, 67)` to clear the Replit
+  preview chrome; bottom tab area is ~84px on web.
 
 ## Key Commands
 

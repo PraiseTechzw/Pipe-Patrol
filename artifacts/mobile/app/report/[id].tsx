@@ -1,4 +1,3 @@
-import { Feather } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import {
@@ -13,18 +12,14 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/EmptyState";
+import { MapPreviewCard } from "@/components/MapPreviewCard";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { SeverityBadge } from "@/components/SeverityBadge";
 import { StatusBadge } from "@/components/StatusBadge";
 import { StatusTimeline } from "@/components/StatusTimeline";
 import { useReports } from "@/context/ReportsContext";
 import { useColors } from "@/hooks/useColors";
-import {
-  STATUS_LABEL,
-  STATUS_ORDER,
-  formatCoords,
-  formatDateTime,
-} from "@/lib/format";
+import { STATUS_LABEL, STATUS_ORDER, formatDateTime } from "@/lib/format";
 import type { ReportStatus } from "@/types";
 
 export default function ReportDetailScreen() {
@@ -153,33 +148,11 @@ export default function ReportDetailScreen() {
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             Location
           </Text>
-          <View
-            style={[
-              styles.locationCard,
-              {
-                backgroundColor: colors.card,
-                borderColor: colors.border,
-                borderRadius: colors.radius,
-              },
-            ]}
-          >
-            <View style={styles.locationRow}>
-              <Feather name="map-pin" size={16} color={colors.primary} />
-              <Text style={[styles.locationAddress, { color: colors.foreground }]}>
-                {report.location.address || "Manual location"}
-              </Text>
-            </View>
-            <View style={[styles.locationRow, { marginTop: 4 }]}>
-              <Feather
-                name="crosshair"
-                size={14}
-                color={colors.mutedForeground}
-              />
-              <Text style={[styles.locationCoords, { color: colors.mutedForeground }]}>
-                {formatCoords(report.location.latitude, report.location.longitude)}
-              </Text>
-            </View>
-          </View>
+          <MapPreviewCard
+            latitude={report.location.latitude}
+            longitude={report.location.longitude}
+            address={report.location.address}
+          />
         </View>
 
         <View style={styles.section}>
@@ -296,24 +269,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "Inter_700Bold",
     fontSize: 16,
-  },
-  locationCard: {
-    borderWidth: 1,
-    padding: 14,
-  },
-  locationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  locationAddress: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 15,
-    flex: 1,
-  },
-  locationCoords: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 12.5,
   },
   timelineCard: {
     borderWidth: 1,
