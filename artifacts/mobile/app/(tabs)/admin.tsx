@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/EmptyState";
 import { ReportCard } from "@/components/ReportCard";
+import { useAuth } from "@/context/AuthContext";
 import { useReports } from "@/context/ReportsContext";
 import { useColors } from "@/hooks/useColors";
 import type { ReportStatus } from "@/types";
@@ -32,7 +33,9 @@ export default function AdminScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { reports, resetSampleData } = useReports();
+  const { user } = useAuth();
   const [filter, setFilter] = useState<ReportStatus | "all">("all");
+  const staffFirstName = user?.name?.split(" ")[0] ?? "team";
 
   const filtered = useMemo(() => {
     const sorted = [...reports].sort((a, b) => {
@@ -118,8 +121,8 @@ export default function AdminScreen() {
               </View>
               <Text style={styles.heading}>Repair queue</Text>
               <Text style={styles.subhead}>
-                Triage incoming citizen reports and update repair status in
-                real time.
+                Welcome back, {staffFirstName}. Triage incoming citizen reports
+                and update repair status in real time.
               </Text>
             </View>
             <Pressable

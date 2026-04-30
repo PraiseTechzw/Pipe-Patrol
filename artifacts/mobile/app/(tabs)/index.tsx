@@ -18,6 +18,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { ReportCard } from "@/components/ReportCard";
 import { SectionHeader } from "@/components/SectionHeader";
+import { useAuth } from "@/context/AuthContext";
 import { useReports } from "@/context/ReportsContext";
 import { useColors } from "@/hooks/useColors";
 import { formatDistance, haversineMeters } from "@/lib/format";
@@ -28,7 +29,9 @@ export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { reports, drafts, defaultLocation, reporterName } = useReports();
+  const { reports, drafts, defaultLocation } = useReports();
+  const { user } = useAuth();
+  const reporterName = user?.name ?? "";
 
   const [coords, setCoords] = useState<{
     latitude: number;

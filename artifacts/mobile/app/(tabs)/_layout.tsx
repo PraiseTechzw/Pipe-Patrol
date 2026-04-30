@@ -7,37 +7,44 @@ import { SymbolView } from "expo-symbols";
 import React from "react";
 import { Platform, StyleSheet, View, useColorScheme } from "react-native";
 
+import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
 
-function NativeTabLayout() {
+function NativeTabLayout({ isStaff }: { isStaff: boolean }) {
   return (
     <NativeTabs>
-      <NativeTabs.Trigger name="index">
+      <NativeTabs.Trigger name="index" hidden={isStaff}>
         <Icon sf={{ default: "house", selected: "house.fill" }} />
         <Label>Home</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="report">
+      <NativeTabs.Trigger name="report" hidden={isStaff}>
         <Icon sf={{ default: "plus.circle", selected: "plus.circle.fill" }} />
         <Label>Report</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="notices">
-        <Icon sf={{ default: "bell", selected: "bell.fill" }} />
-        <Label>Notices</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="admin">
+      <NativeTabs.Trigger name="admin" hidden={!isStaff}>
         <Icon
           sf={{
             default: "wrench.and.screwdriver",
             selected: "wrench.and.screwdriver.fill",
           }}
         />
-        <Label>Admin</Label>
+        <Label>Queue</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="notices">
+        <Icon sf={{ default: "bell", selected: "bell.fill" }} />
+        <Label>Notices</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="account">
+        <Icon
+          sf={{ default: "person.circle", selected: "person.circle.fill" }}
+        />
+        <Label>Account</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
 
-function ClassicTabLayout() {
+function ClassicTabLayout({ isStaff }: { isStaff: boolean }) {
   const colors = useColors();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -83,6 +90,7 @@ function ClassicTabLayout() {
         name="index"
         options={{
           title: "Home",
+          href: isStaff ? null : "/(tabs)",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="house" tintColor={color} size={24} />
@@ -95,11 +103,29 @@ function ClassicTabLayout() {
         name="report"
         options={{
           title: "Report",
+          href: isStaff ? null : "/(tabs)/report",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="plus.circle" tintColor={color} size={26} />
             ) : (
               <Feather name="plus-circle" size={24} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="admin"
+        options={{
+          title: "Queue",
+          href: isStaff ? "/(tabs)/admin" : null,
+          tabBarIcon: ({ color }) =>
+            isIOS ? (
+              <SymbolView
+                name="wrench.and.screwdriver"
+                tintColor={color}
+                size={24}
+              />
+            ) : (
+              <Feather name="tool" size={22} color={color} />
             ),
         }}
       />
@@ -116,18 +142,14 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="admin"
+        name="account"
         options={{
-          title: "Admin",
+          title: "Account",
           tabBarIcon: ({ color }) =>
             isIOS ? (
-              <SymbolView
-                name="wrench.and.screwdriver"
-                tintColor={color}
-                size={24}
-              />
+              <SymbolView name="person.circle" tintColor={color} size={24} />
             ) : (
-              <Feather name="tool" size={22} color={color} />
+              <Feather name="user" size={22} color={color} />
             ),
         }}
       />
@@ -136,8 +158,9 @@ function ClassicTabLayout() {
 }
 
 export default function TabLayout() {
+  const { isStaff } = useAuth();
   if (isLiquidGlassAvailable()) {
-    return <NativeTabLayout />;
+    return <NativeTabLayout isStaff={isStaff} />;
   }
-  return <ClassicTabLayout />;
+  return <ClassicTabLayout isStaff={isStaff} />;
 }
