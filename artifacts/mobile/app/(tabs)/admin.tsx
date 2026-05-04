@@ -33,7 +33,7 @@ export default function AdminScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { reports, resetSampleData } = useReports();
-  const { user } = useAuth();
+  const { user, isStaff } = useAuth();
   const [filter, setFilter] = useState<ReportStatus | "all">("all");
   const staffFirstName = user?.name?.split(" ")[0] ?? "team";
 
@@ -60,6 +60,12 @@ export default function AdminScreen() {
   }, [reports]);
 
   const heroPad = Platform.OS === "web" ? Math.max(insets.top, 67) : insets.top;
+
+  React.useEffect(() => {
+    if (!isStaff) {
+      router.replace("/(tabs)");
+    }
+  }, [isStaff, router]);
 
   const onReset = () => {
     const doReset = async () => {

@@ -30,7 +30,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { reports, drafts, defaultLocation } = useReports();
-  const { user } = useAuth();
+  const { user, isStaff } = useAuth();
   const reporterName = user?.name ?? "";
 
   const [coords, setCoords] = useState<{
@@ -93,8 +93,12 @@ export default function HomeScreen() {
   }, [defaultLocation]);
 
   useEffect(() => {
+    if (isStaff) {
+      router.replace("/(tabs)/admin");
+      return;
+    }
     fetchLocation();
-  }, [fetchLocation]);
+  }, [fetchLocation, isStaff, router]);
 
   const myReports = useMemo(
     () => reports.filter((r) => !r.isSeed),
@@ -228,7 +232,7 @@ export default function HomeScreen() {
 
           <View style={styles.heroActions}>
             <Pressable
-              onPress={() => router.push("/report")}
+              onPress={() => router.push("/(tabs)/report")}
               style={({ pressed }) => [
                 styles.heroBtnPrimary,
                 {
@@ -245,7 +249,7 @@ export default function HomeScreen() {
               </Text>
             </Pressable>
             <Pressable
-              onPress={() => router.push("/notices")}
+              onPress={() => router.push("/(tabs)/notices")}
               style={({ pressed }) => [
                 styles.heroBtnGhost,
                 { opacity: pressed ? 0.75 : 1 },
@@ -371,7 +375,7 @@ export default function HomeScreen() {
             subtitle="Tickets you've submitted"
             actionLabel={drafts.length > 0 ? `${drafts.length} drafts` : undefined}
             actionIcon={drafts.length > 0 ? "edit-3" : undefined}
-            onActionPress={drafts.length > 0 ? () => router.push("/report") : undefined}
+            onActionPress={drafts.length > 0 ? () => router.push("/(tabs)/report") : undefined}
           />
           {myReports.length === 0 ? (
             <EmptyState
@@ -382,7 +386,7 @@ export default function HomeScreen() {
               <PrimaryButton
                 label="Submit your first report"
                 icon="plus"
-                onPress={() => router.push("/report")}
+                onPress={() => router.push("/(tabs)/report")}
               />
             </EmptyState>
           ) : (
