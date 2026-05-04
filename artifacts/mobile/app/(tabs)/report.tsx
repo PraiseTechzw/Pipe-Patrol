@@ -47,7 +47,7 @@ export default function ReportScreen() {
     saveDraft,
     deleteDraft,
   } = useReports();
-  const { user } = useAuth();
+  const { user, isStaff } = useAuth();
 
   const [mode, setMode] = useState<Mode>("form");
 
@@ -65,6 +65,13 @@ export default function ReportScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
   const [submittedTicket, setSubmittedTicket] = useState<string | null>(null);
+  const [submittedReportId, setSubmittedReportId] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (isStaff) {
+      router.replace("/(tabs)/admin");
+    }
+  }, [isStaff, router]);
 
   const resetForm = useCallback(() => {
     setEditingDraftId(null);
@@ -73,6 +80,7 @@ export default function ReportScreen() {
     setLocation(EMPTY_LOCATION);
     setImageUri(null);
     setSubmittedTicket(null);
+    setSubmittedReportId(null);
   }, []);
 
   const captureGps = useCallback(async () => {
@@ -184,8 +192,9 @@ export default function ReportScreen() {
           Haptics.NotificationFeedbackType.Success,
         ).catch(() => {});
       }
-      setSubmittedTicket(report.ticketId);
       resetForm();
+      setSubmittedTicket(report.ticketId);
+      setSubmittedReportId(report.id);
     } finally {
       setSubmitting(false);
     }
@@ -338,7 +347,11 @@ export default function ReportScreen() {
                 label="Track this report"
                 icon="activity"
                 onPress={() => {
-                  router.push("/");
+                  if (submittedReportId) {
+                    router.push(`/report/${submittedReportId}`);
+                  } else {
+                    router.push("/");
+                  }
                 }}
               />
               <PrimaryButton

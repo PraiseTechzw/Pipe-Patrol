@@ -23,7 +23,7 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 function AuthGate({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, isStaff } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -33,9 +33,9 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     if (!user && !inAuthGroup) {
       router.replace("/(auth)/welcome");
     } else if (user && inAuthGroup) {
-      router.replace("/(tabs)");
+      router.replace(isStaff ? "/(tabs)/admin" : "/(tabs)");
     }
-  }, [user, loading, segments, router]);
+  }, [user, isStaff, loading, segments, router]);
 
   return <>{children}</>;
 }

@@ -17,6 +17,7 @@ import { PrimaryButton } from "@/components/PrimaryButton";
 import { SeverityBadge } from "@/components/SeverityBadge";
 import { StatusBadge } from "@/components/StatusBadge";
 import { StatusTimeline } from "@/components/StatusTimeline";
+import { useAuth } from "@/context/AuthContext";
 import { useReports } from "@/context/ReportsContext";
 import { useColors } from "@/hooks/useColors";
 import { STATUS_LABEL, STATUS_ORDER, formatDateTime } from "@/lib/format";
@@ -28,6 +29,7 @@ export default function ReportDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { reports, advanceStatus } = useReports();
+  const { isStaff } = useAuth();
 
   const report = useMemo(
     () => reports.find((r) => r.id === id),
@@ -175,7 +177,7 @@ export default function ReportDetailScreen() {
 
         <View style={[styles.section, { marginBottom: 8 }]}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-            Update status
+            {isStaff ? "Update status" : "Municipal updates"}
           </Text>
           <View
             style={[
@@ -188,24 +190,28 @@ export default function ReportDetailScreen() {
             ]}
           >
             <Text style={[styles.actionsHint, { color: colors.mutedForeground }]}>
-              For municipal staff. Move the ticket through its repair lifecycle.
+              {isStaff
+                ? "Move the ticket through its repair lifecycle."
+                : "This ticket updates as the control room acknowledges, dispatches, and resolves the repair."}
             </Text>
-            <View style={styles.actionsRow}>
-              {nextStatus ? (
-                <PrimaryButton
-                  label={`Mark as ${STATUS_LABEL[nextStatus]}`}
-                  icon="arrow-right"
-                  onPress={onAdvance}
-                />
-              ) : (
-                <PrimaryButton
-                  label="Reopen"
-                  icon="rotate-ccw"
-                  variant="ghost"
-                  onPress={onReopen}
-                />
-              )}
-            </View>
+            {isStaff ? (
+              <View style={styles.actionsRow}>
+                {nextStatus ? (
+                  <PrimaryButton
+                    label={`Mark as ${STATUS_LABEL[nextStatus]}`}
+                    icon="arrow-right"
+                    onPress={onAdvance}
+                  />
+                ) : (
+                  <PrimaryButton
+                    label="Reopen"
+                    icon="rotate-ccw"
+                    variant="ghost"
+                    onPress={onReopen}
+                  />
+                )}
+              </View>
+            ) : null}
           </View>
         </View>
       </ScrollView>
